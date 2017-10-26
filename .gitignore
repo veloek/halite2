@@ -1,0 +1,4 @@
+replay-*
+*.log
+bin/MyBot.exe
+bin/OpponentBot.exe
