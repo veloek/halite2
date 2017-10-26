@@ -15,7 +15,7 @@ namespace Halite2
             GameMap gameMap = networking.Initialize(name);
 
             List<Move> moveList = new List<Move>();
-            for (; ; )
+            for (;;)
             {
                 moveList.Clear();
                 gameMap.UpdateMap(Networking.ReadLineIntoMetadata());
@@ -29,7 +29,7 @@ namespace Halite2
 
                     var allIsOwned = gameMap.GetAllPlanets().All(p => p.Value.IsOwned());
                     var closestAvailablePlanet = gameMap.GetAllPlanets().Values
-                        .Where(p => !p.IsOwned())
+                        .Where(p => !p.IsOwned() || (p.GetOwner() == gameMap.GetMyPlayerId() && !p.IsFull()))
                         .OrderBy(p => p.GetDistanceTo(ship))
                         .FirstOrDefault();
                     var closestEnemy = gameMap.GetAllShips()
