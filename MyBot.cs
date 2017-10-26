@@ -1,5 +1,6 @@
 ﻿using Halite2.hlt;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace Halite2
 {
@@ -8,7 +9,7 @@ namespace Halite2
 
         public static void Main(string[] args)
         {
-            string name = args.Length > 0 ? args[0] : "Sharpie";
+            string name = args.Length > 0 ? args[0] : "T-800";
 
             Networking networking = new Networking();
             GameMap gameMap = networking.Initialize(name);
@@ -26,26 +27,38 @@ namespace Halite2
                         continue;
                     }
 
-                    foreach (Planet planet in gameMap.GetAllPlanets().Values)
+                    var allIsOwned = gameMap.GetAllPlanets().All(p => p.Value.IsOwned());
+                    var closestAvailablePlanet = gameMap.GetAllPlanets().Values
+                        .Where(p => !p.IsOwned())
+                        .OrderBy(p => p.GetDistanceTo(ship))
+                        .FirstOrDefault();
+                    var closestEnemy = gameMap.GetAllShips()
+                        .Where(s => s.GetOwner() != gameMap.GetMyPlayerId())
+                        .OrderBy(e => e.GetDistanceTo(ship))
+                        .FirstOrDefault();
+
+                    if (allIsOwned)
                     {
-                        if (planet.IsOwned())
+                        if (closestEnemy != null)
                         {
-                            continue;
+                            ThrustMove newThrustMove = Navigation.NavigateShipToDock(gameMap, ship, closestEnemy, Constants.MAX_SPEED);
+                            if (newThrustMove != null)
+                            {
+                                moveList.Add(newThrustMove);
+                            }
                         }
-
-                        if (ship.CanDock(planet))
-                        {
-                            moveList.Add(new DockMove(ship, planet));
-                            break;
-                        }
-
-                        ThrustMove newThrustMove = Navigation.NavigateShipToDock(gameMap, ship, planet, Constants.MAX_SPEED / 2);
+                    }
+                    else if (ship.CanDock(closestAvailablePlanet))
+                    {
+                        moveList.Add(new DockMove(ship, closestAvailablePlanet));
+                    }
+                    else
+                    {
+                        ThrustMove newThrustMove = Navigation.NavigateShipToDock(gameMap, ship, closestAvailablePlanet, Constants.MAX_SPEED / 2);
                         if (newThrustMove != null)
                         {
                             moveList.Add(newThrustMove);
                         }
-
-                        break;
                     }
                 }
                 Networking.SendMoves(moveList);
