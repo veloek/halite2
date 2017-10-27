@@ -13,7 +13,7 @@ clean:
 	rm -f $(OUT) *.log replay-* 2> /dev/null
 
 battle:
-	$(HLT) -d "240 160" "$(OUT)" "$(OPPONENT) Enemy"
+	$(HLT) -d "360 240" "$(OUT)" "$(OPPONENT) Enemy"
 
 gym:
-	 $(CLIENT) gym -r "$(OUT)" -r "$(OPPONENT)" -b "$(HLT)" -i 100 -H 240 -W 160
+	 $(CLIENT) gym -r "$(OUT)" -r "$(OPPONENT)" -b "$(HLT)" -i 100 -H 240 -W 360
