@@ -2,3 +2,7 @@ replay-*
 *.log
 bin/MyBot.exe
 bin/OpponentBot.exe
+client-tools/build/
+client-tools/dist/
+client-tools/hlt_client.egg-info/
+client-tools/hlt_client/__pycache__/
