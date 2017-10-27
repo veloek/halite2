@@ -6,6 +6,9 @@ namespace Halite2
 {
     public class MyBot
     {
+        private static List<Move> moveList = new List<Move>();
+        private static Dictionary<Planet, int> shipsHeadingTowardsPlanet =
+            new Dictionary<Planet, int>();
 
         public static void Main(string[] args)
         {
@@ -14,10 +17,10 @@ namespace Halite2
             Networking networking = new Networking();
             GameMap gameMap = networking.Initialize(name);
 
-            List<Move> moveList = new List<Move>();
             for (;;)
             {
                 moveList.Clear();
+                shipsHeadingTowardsPlanet.Clear();
                 gameMap.UpdateMap(Networking.ReadLineIntoMetadata());
 
                 foreach (Ship ship in gameMap.GetMyPlayer().GetShips().Values)
@@ -29,7 +32,8 @@ namespace Halite2
 
                     var allIsOwned = gameMap.GetAllPlanets().All(p => p.Value.IsOwned());
                     var closestAvailablePlanet = gameMap.GetAllPlanets().Values
-                        .Where(p => !p.IsOwned() || (p.GetOwner() == gameMap.GetMyPlayerId() && !p.IsFull()))
+                        .Where(p => !p.IsOwned() || p.HasRoom(gameMap.GetMyPlayerId()))
+                        .Where(p => ShouldDispatchMoreShips(p))
                         .OrderBy(p => p.GetDistanceTo(ship))
                         .FirstOrDefault();
                     var closestEnemy = gameMap.GetAllShips()
@@ -41,7 +45,8 @@ namespace Halite2
                     {
                         if (closestEnemy != null)
                         {
-                            ThrustMove newThrustMove = Navigation.NavigateShipToDock(gameMap, ship, closestEnemy, Constants.MAX_SPEED);
+                            var newThrustMove = Navigation.NavigateShipToDock(
+                                gameMap, ship, closestEnemy, Constants.MAX_SPEED);
                             if (newThrustMove != null)
                             {
                                 moveList.Add(newThrustMove);
@@ -54,7 +59,8 @@ namespace Halite2
                     }
                     else
                     {
-                        ThrustMove newThrustMove = Navigation.NavigateShipToDock(gameMap, ship, closestAvailablePlanet, Constants.MAX_SPEED / 2);
+                        var newThrustMove = Navigation.NavigateShipToDock(
+                            gameMap, ship, closestAvailablePlanet, 7);
                         if (newThrustMove != null)
                         {
                             moveList.Add(newThrustMove);
@@ -63,6 +69,13 @@ namespace Halite2
                 }
                 Networking.SendMoves(moveList);
             }
+        }
+
+        private static bool ShouldDispatchMoreShips(Planet p)
+        {
+            var numShips = 0;
+            return (shipsHeadingTowardsPlanet.TryGetValue(p, out numShips) && numShips < p.NumAvailableSpots())
+                || numShips == 0;
         }
     }
 }

@@ -33,12 +33,20 @@ namespace Halite2.hlt {
             return dockedShips;
         }
 
+        public int NumAvailableSpots() {
+            return dockingSpots - dockedShips.Count;
+        }
+
         public bool IsFull() {
-            return dockedShips.Count == dockingSpots;
+            return NumAvailableSpots() == 0;
         }
 
         public bool IsOwned() {
             return GetOwner() != -1;
+        }
+
+        public bool HasRoom(int playerId) {
+            return GetOwner() == playerId && !IsFull();
         }
         
         public override string ToString() {
