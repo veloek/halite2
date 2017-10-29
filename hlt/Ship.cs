@@ -8,6 +8,7 @@ namespace Halite2.hlt
         private int dockedPlanet;
         private int dockingProgress;
         private int weaponCooldown;
+        public Mission Mission { get; set; };
 
         public Ship(int owner, int id, double xPos, double yPos,
                     int health, DockingStatus dockingStatus, int dockedPlanet,
@@ -20,24 +21,24 @@ namespace Halite2.hlt
             this.weaponCooldown = weaponCooldown;
         }
 
-        public int GetWeaponCooldown()
+        public int WeaponCooldown
         {
-            return weaponCooldown;
+            get { return weaponCooldown; }
         }
 
-        public DockingStatus GetDockingStatus()
+        public DockingStatus DockingStatus
         {
-            return dockingStatus;
+            get { return dockingStatus; }
         }
 
-        public int GetDockingProgress()
+        public int DockingProgress
         {
-            return dockingProgress;
+            get { return dockingProgress; }
         }
 
-        public int GetDockedPlanet()
+        public int DockedPlanet()
         {
-            return dockedPlanet;
+            get { return dockedPlanet; }
         }
 
         public bool CanDock(Planet planet)
