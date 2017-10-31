@@ -4,23 +4,16 @@ namespace Halite2.hlt
     {
         public enum MoveType { Noop, Thrust, Dock, Undock }
 
-        private MoveType type;
-        private Ship ship;
+        private MoveType _type;
+        private Ship _ship;
+
+        public MoveType Type => _type;
+        public Ship Ship => _ship;
 
         public Move(MoveType type, Ship ship)
         {
-            this.type = type;
-            this.ship = ship;
-        }
-
-        public MoveType GetMoveType()
-        {
-            return type;
-        }
-
-        public Ship GetShip()
-        {
-            return ship;
+            this._type = type;
+            this._ship = ship;
         }
     }
 }

@@ -1,51 +1,38 @@
 namespace Halite2.hlt
 {
-
     public class Entity : Position
     {
+        private int _owner;
+        private int _id;
+        private int _health;
+        private double _radius;
 
-        private int owner;
-        private int id;
-        private int health;
-        private double radius;
+        public int Owner => _owner;
+        public int Id => _id;
+        public int Health => _health;
 
         public Entity(int owner, int id, double xPos, double yPos, int health, double radius)
             : base(xPos, yPos)
         {
-            this.owner = owner;
-            this.id = id;
-            this.health = health;
-            this.radius = radius;
-        }
-
-        public int GetOwner()
-        {
-            return owner;
-        }
-
-        public int GetId()
-        {
-            return id;
-        }
-
-        public int GetHealth()
-        {
-            return health;
+            this._owner = owner;
+            this._id = id;
+            this._health = health;
+            this._radius = radius;
         }
 
         public override double GetRadius()
         {
-            return radius;
+            return _radius;
         }
 
         public override string ToString()
         {
             return "Entity[" +
                     base.ToString() +
-                    ", owner=" + owner +
-                    ", id=" + id +
-                    ", health=" + health +
-                    ", radius=" + radius +
+                    ", owner=" + _owner +
+                    ", id=" + _id +
+                    ", health=" + _health +
+                    ", radius=" + _radius +
                     "]";
         }
     }

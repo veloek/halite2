@@ -1,26 +1,19 @@
 using System.Collections.Generic;
 
-namespace Halite2.hlt {
-    public class Player {
+namespace Halite2.hlt
+{
+    public class Player
+    {
+        private Dictionary<int, Ship> _ships;
+        private int _id;
 
-        private Dictionary<int, Ship> ships;
-        private int id;
+        public Dictionary<int, Ship> Ships => _ships;
+        public int Id => _id;
 
-        public Player(int id, Dictionary<int, Ship> ships) {
-            this.id = id;
-            this.ships = ships;
-        }
-
-        public IDictionary<int, Ship> GetShips() {
-            return ships;
-        }
-
-        public Ship GetShip(int entityId) {
-            return ships[entityId];
-        }
-
-        public int GetId() {
-            return id;
+        public Player(int id, Dictionary<int, Ship> ships)
+        {
+            this._id = id;
+            this._ships = ships;
         }
     }
 }

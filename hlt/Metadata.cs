@@ -2,22 +2,22 @@ namespace Halite2.hlt
 {
     public class Metadata
     {
-        private string[] metadata;
-        private int index = 0;
+        private string[] _metadata;
+        private int _index = 0;
 
         public Metadata(string[] metadata)
         {
-            this.metadata = metadata;
+            this._metadata = metadata;
         }
 
         public string Pop()
         {
-            return metadata[index++];
+            return _metadata[_index++];
         }
 
         public bool IsEmpty()
         {
-            return index == metadata.Length;
+            return _index == _metadata.Length;
         }
     }
 }

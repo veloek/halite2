@@ -7,7 +7,6 @@ namespace Halite2.hlt
 {
     public class Networking
     {
-
         private static char UNDOCK_KEY = 'u';
         private static char DOCK_KEY = 'd';
         private static char THRUST_KEY = 't';
@@ -18,32 +17,32 @@ namespace Halite2.hlt
 
             foreach (Move move in moves)
             {
-                switch (move.GetMoveType())
+                switch (move.Type)
                 {
                     case Move.MoveType.Noop:
                         continue;
                     case Move.MoveType.Undock:
                         moveString.Append(UNDOCK_KEY)
                                 .Append(" ")
-                                .Append(move.GetShip().GetId())
+                                .Append(move.Ship.Id)
                                 .Append(" ");
                         break;
                     case Move.MoveType.Dock:
                         moveString.Append(DOCK_KEY)
                                 .Append(" ")
-                                .Append(move.GetShip().GetId())
+                                .Append(move.Ship.Id)
                                 .Append(" ")
-                                .Append(((DockMove)move).GetDestinationId())
+                                .Append(((DockMove)move).DestinationId)
                                 .Append(" ");
                         break;
                     case Move.MoveType.Thrust:
                         moveString.Append(THRUST_KEY)
                                 .Append(" ")
-                                .Append(move.GetShip().GetId())
+                                .Append(move.Ship.Id)
                                 .Append(" ")
-                                .Append(((ThrustMove)move).GetThrust())
+                                .Append(((ThrustMove)move).Thrust)
                                 .Append(" ")
-                                .Append(((ThrustMove)move).GetAngle())
+                                .Append(((ThrustMove)move).Angle)
                                 .Append(" ");
                         break;
                 }
@@ -58,7 +57,8 @@ namespace Halite2.hlt
                 StringBuilder builder = new StringBuilder();
                 int buffer;
 
-                for (; (buffer = Console.Read()) >= 0;) {
+                for (; (buffer = Console.Read()) >= 0;)
+                {
                     if (buffer == '\n')
                     {
                         break;
@@ -84,7 +84,7 @@ namespace Halite2.hlt
             return new Metadata(ReadLine().Trim().Split(' '));
         }
 
-        public GameMap Initialize(String botName)
+        public static GameMap Initialize(String botName)
         {
             int myId = int.Parse(ReadLine());
             DebugLog.Initialize(new StreamWriter(String.Format("{0}_{1}.log", myId, botName)));
@@ -103,5 +103,4 @@ namespace Halite2.hlt
             return gameMap;
         }
     }
-
 }

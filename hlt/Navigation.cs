@@ -16,7 +16,8 @@ namespace Halite2.hlt
             double angularStepRad = Math.PI / 180.0;
             Position targetPos = ship.GetClosestPoint(dockTarget);
 
-            return NavigateShipTowardsTarget(gameMap, ship, targetPos, maxThrust, avoidObstacles, maxCorrections, angularStepRad);
+            return NavigateShipTowardsTarget(gameMap, ship, targetPos, maxThrust,
+                avoidObstacles, maxCorrections, angularStepRad);
         }
 
         public static ThrustMove NavigateShipTowardsTarget(
@@ -33,16 +34,17 @@ namespace Halite2.hlt
                 return null;
             }
 
-            double distance = ship.GetDistanceTo(targetPos);
+            double distance = ship.DistanceTo(targetPos);
             double angleRad = ship.OrientTowardsInRad(targetPos);
 
             if (avoidObstacles && gameMap.ObjectsBetween(ship, targetPos).Any())
             {
                 double newTargetDx = Math.Cos(angleRad + angularStepRad) * distance;
                 double newTargetDy = Math.Sin(angleRad + angularStepRad) * distance;
-                Position newTarget = new Position(ship.GetXPos() + newTargetDx, ship.GetYPos() + newTargetDy);
+                Position newTarget = new Position(ship.XPos + newTargetDx, ship.YPos + newTargetDy);
 
-                return NavigateShipTowardsTarget(gameMap, ship, newTarget, maxThrust, true, (maxCorrections - 1), angularStepRad);
+                return NavigateShipTowardsTarget(gameMap, ship, newTarget, maxThrust,
+                    true, (maxCorrections - 1), angularStepRad);
             }
 
             int thrust;

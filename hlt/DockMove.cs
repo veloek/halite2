@@ -1,20 +1,18 @@
 namespace Halite2.hlt
 {
-
     public class DockMove : Move
     {
+        private long _destinationId;
 
-        private long destinationId;
+        public long DestinationId
+        {
+            get { return _destinationId; }
+        }
 
         public DockMove(Ship ship, Planet planet)
             : base(MoveType.Dock, ship)
         {
-            destinationId = planet.GetId();
-        }
-
-        public long GetDestinationId()
-        {
-            return destinationId;
+            _destinationId = planet.Id;
         }
     }
 }

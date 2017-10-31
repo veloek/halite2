@@ -2,7 +2,6 @@ namespace Halite2.hlt
 {
     public class Constants
     {
-
         ////////////////////////////////////////////////////////////////////////
         // Implementation-independent language-agnostic constants
 

@@ -2,25 +2,17 @@ namespace Halite2.hlt
 {
     public class ThrustMove : Move
     {
+        private int _angleDeg;
+        private int _thrust;
 
-        private int angleDeg;
-        private int thrust;
+        public int Angle => _angleDeg;
+        public int Thrust => _thrust;
 
         public ThrustMove(Ship ship, int angleDeg, int thrust)
             : base(MoveType.Thrust, ship)
         {
-            this.thrust = thrust;
-            this.angleDeg = angleDeg;
-        }
-
-        public int GetAngle()
-        {
-            return angleDeg;
-        }
-
-        public int GetThrust()
-        {
-            return thrust;
+            this._thrust = thrust;
+            this._angleDeg = angleDeg;
         }
     }
 }

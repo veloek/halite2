@@ -1,28 +1,23 @@
 using System;
 
-namespace Halite2.hlt {
+namespace Halite2.hlt
+{
+    public class Position
+    {
+        private double _xPos;
+        private double _yPos;
 
-    public class Position {
-
-        private double xPos;
-        private double yPos;
+        public double XPos => _xPos;
+        public double YPos => _yPos;
 
         public Position(double xPos, double yPos) {
-            this.xPos = xPos;
-            this.yPos = yPos;
+            this._xPos = xPos;
+            this._yPos = yPos;
         }
 
-        public double GetXPos() {
-            return xPos;
-        }
-
-        public double GetYPos() {
-            return yPos;
-        }
-
-        public double GetDistanceTo(Position target) {
-            double dx = xPos - target.GetXPos();
-            double dy = yPos - target.GetYPos();
+        public double DistanceTo(Position target) {
+            double dx = _xPos - target.XPos;
+            double dy = _yPos - target.YPos;
             return Math.Sqrt(Math.Pow(dx, 2) + Math.Pow(dy, 2));
         }
         
@@ -35,8 +30,8 @@ namespace Halite2.hlt {
         }
 
         public double OrientTowardsInRad(Position target) {
-            double dx = target.GetXPos() - xPos;
-            double dy = target.GetYPos() - yPos;
+            double dx = target.XPos - _xPos;
+            double dy = target.YPos - _yPos;
 
             return Math.Atan2(dy, dx) + 2 * Math.PI;
         }
@@ -45,8 +40,8 @@ namespace Halite2.hlt {
             double radius = target.GetRadius() + Constants.MIN_DISTANCE_FOR_CLOSEST_POINT;
             double angleRad = target.OrientTowardsInRad(this);
 
-            double x = target.GetXPos() + radius * Math.Cos(angleRad);
-            double y = target.GetYPos() + radius * Math.Sin(angleRad);
+            double x = target.XPos + radius * Math.Cos(angleRad);
+            double y = target.YPos + radius * Math.Sin(angleRad);
 
             return new Position(x, y);
         }
@@ -63,7 +58,7 @@ namespace Halite2.hlt {
             if (position == null)
                 return false;
 
-            return Equals(position.xPos, xPos) && Equals(position.yPos, yPos);
+            return Equals(position._xPos, _xPos) && Equals(position._yPos, _yPos);
         }
 
         public override int GetHashCode() {
@@ -71,7 +66,7 @@ namespace Halite2.hlt {
         }
 
         public override string ToString() {
-            return "Position(" + xPos + ", " + yPos + ")";
+            return "Position(" + _xPos + ", " + _yPos + ")";
         }
     }
 }

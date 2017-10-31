@@ -19,12 +19,12 @@ namespace Halite2.hlt
             // and substitute into the equation of a circle
             // Solve for t
             double circleRadius = circle.GetRadius();
-            double startX = start.GetXPos();
-            double startY = start.GetYPos();
-            double endX = end.GetXPos();
-            double endY = end.GetYPos();
-            double centerX = circle.GetXPos();
-            double centerY = circle.GetYPos();
+            double startX = start.XPos;
+            double startY = start.YPos;
+            double endX = end.XPos;
+            double endY = end.YPos;
+            double centerX = circle.XPos;
+            double centerY = circle.YPos;
             double dx = endX - startX;
             double dy = endY - startY;
 
@@ -38,7 +38,7 @@ namespace Halite2.hlt
             if (a == 0.0)
             {
                 // Start and end are the same point
-                return start.GetDistanceTo(circle) <= circleRadius + fudge;
+                return start.DistanceTo(circle) <= circleRadius + fudge;
             }
 
             // Time along segment when closest to the circle (vertex of the quadratic)
@@ -50,7 +50,7 @@ namespace Halite2.hlt
 
             double closestX = startX + dx * t;
             double closestY = startY + dy * t;
-            double closestDistance = new Position(closestX, closestY).GetDistanceTo(circle);
+            double closestDistance = new Position(closestX, closestY).DistanceTo(circle);
 
             return closestDistance <= circleRadius + fudge;
         }

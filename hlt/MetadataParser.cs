@@ -1,16 +1,21 @@
 using System.Collections.Generic;
 
-namespace Halite2.hlt {
-    public class MetadataParser {
-        public static void PopulateShipList(List<Ship> shipsOutput, int owner, Metadata shipsMetadata) {
+namespace Halite2.hlt
+{
+    public class MetadataParser
+    {
+        public static void PopulateShipList(List<Ship> shipsOutput, int owner, Metadata shipsMetadata)
+        {
             long numberOfShips = long.Parse(shipsMetadata.Pop());
 
-            for (int i = 0; i < numberOfShips; ++i) {
+            for (int i = 0; i < numberOfShips; ++i)
+            {
                 shipsOutput.Add(NewShipFromMetadata(owner, shipsMetadata));
             }
         }
 
-        private static Ship NewShipFromMetadata(int owner, Metadata metadata) {
+        private static Ship NewShipFromMetadata(int owner, Metadata metadata)
+        {
             int id = int.Parse(metadata.Pop());
             double xPos = double.Parse(metadata.Pop());
             double yPos = double.Parse(metadata.Pop());
@@ -20,15 +25,17 @@ namespace Halite2.hlt {
             metadata.Pop();
             metadata.Pop();
 
-            Ship.DockingStatus dockingStatus = (Ship.DockingStatus)int.Parse(metadata.Pop());
+            DockingStatus dockingStatus = (DockingStatus)int.Parse(metadata.Pop());
             int dockedPlanet = int.Parse(metadata.Pop());
             int dockingProgress = int.Parse(metadata.Pop());
             int weaponCooldown = int.Parse(metadata.Pop());
 
-            return new Ship(owner, id, xPos, yPos, health, dockingStatus, dockedPlanet, dockingProgress, weaponCooldown);
+            return new Ship(owner, id, xPos, yPos, health, dockingStatus, dockedPlanet,
+                dockingProgress, weaponCooldown);
         }
 
-        public static Planet NewPlanetFromMetadata(List<int> dockedShips, Metadata metadata) {
+        public static Planet NewPlanetFromMetadata(List<int> dockedShips, Metadata metadata)
+        {
             int id = int.Parse(metadata.Pop());
             double xPos = double.Parse(metadata.Pop());
             double yPos = double.Parse(metadata.Pop());
@@ -42,14 +49,18 @@ namespace Halite2.hlt {
             int hasOwner = int.Parse(metadata.Pop());
             int ownerCandidate = int.Parse(metadata.Pop());
             int owner;
-            if (hasOwner == 1) {
+            if (hasOwner == 1)
+            {
                 owner = ownerCandidate;
-            } else {
+            }
+            else
+            {
                 owner = -1; // ignore ownerCandidate
             }
 
             int dockedShipCount = int.Parse(metadata.Pop());
-            for (int i = 0; i < dockedShipCount; ++i) {
+            for (int i = 0; i < dockedShipCount; ++i)
+            {
                 dockedShips.Add(int.Parse(metadata.Pop()));
             }
 
@@ -57,11 +68,13 @@ namespace Halite2.hlt {
                               currentProduction, remainingProduction, dockedShips);
         }
 
-        public static int ParsePlayerNum(Metadata metadata) {
+        public static int ParsePlayerNum(Metadata metadata)
+        {
             return int.Parse(metadata.Pop());
         }
 
-        public static int ParsePlayerId(Metadata metadata) {
+        public static int ParsePlayerId(Metadata metadata)
+        {
             return int.Parse(metadata.Pop());
         }
     }

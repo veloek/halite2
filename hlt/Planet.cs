@@ -1,61 +1,58 @@
 using System.Collections.Generic;
 
-namespace Halite2.hlt {
-    public class Planet: Entity {
+namespace Halite2.hlt
+{
+    public class Planet: Entity
+    {
+        private int _remainingProduction;
+        private int _currentProduction;
+        private int _dockingSpots;
+        private IList<int> _dockedShips;
 
-        private int remainingProduction;
-        private int currentProduction;
-        private int dockingSpots;
-        private IList<int> dockedShips;
+        public int RemainingProduction => _remainingProduction;
+        public int CurrentProduction => _currentProduction;
+        public int DockingSpots => _dockingSpots;
+        public IList<int> DockedShips => _dockedShips;
 
         public Planet(int owner, int id, double xPos, double yPos, int health,
                       double radius, int dockingSpots, int currentProduction,
                       int remainingProduction, List<int> dockedShips)
         :base(owner, id, xPos, yPos, health, radius)
         {
-            this.dockingSpots = dockingSpots;
-            this.currentProduction = currentProduction;
-            this.remainingProduction = remainingProduction;
-            this.dockedShips = dockedShips.AsReadOnly();
+            this._dockingSpots = dockingSpots;
+            this._currentProduction = currentProduction;
+            this._remainingProduction = remainingProduction;
+            this._dockedShips = dockedShips.AsReadOnly();
         }
 
-        public int RemainingProduction => remainingProduction;
-
-        public int GetCurrentProduction() {
-            return currentProduction;
+        public int NumAvailableSpots()
+        {
+            return _dockingSpots - _dockedShips.Count;
         }
 
-        public int GetDockingSpots() {
-            return dockingSpots;
-        }
-
-        public IList<int> GetDockedShips() {
-            return dockedShips;
-        }
-
-        public int NumAvailableSpots() {
-            return dockingSpots - dockedShips.Count;
-        }
-
-        public bool IsFull() {
+        public bool IsFull()
+        {
             return NumAvailableSpots() == 0;
         }
 
-        public bool IsOwned() {
-            return GetOwner() != -1;
+        public bool IsOwned()
+        {
+            return Owner != -1;
         }
 
-        public bool HasRoom(int playerId) {
-            return GetOwner() == playerId && !IsFull();
+        public bool HasRoom(int playerId)
+        {
+            return Owner == playerId && !IsFull();
         }
         
-        public override string ToString() {
+        public override string ToString()
+        {
             return "Planet[" +
                     base.ToString() +
-                    ", remainingProduction=" + remainingProduction +
-                    ", currentProduction=" + currentProduction +
-                    ", dockingSpots=" + dockingSpots +
-                    ", dockedShips=" + dockedShips +
+                    ", remainingProduction=" + _remainingProduction +
+                    ", currentProduction=" + _currentProduction +
+                    ", dockingSpots=" + _dockingSpots +
+                    ", dockedShips=" + _dockedShips +
                     "]";
         }
     }
