@@ -1,4 +1,5 @@
 ﻿using Halite2.hlt;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -8,8 +9,10 @@ namespace Halite2
     {
         private static List<Move> _moveList = new List<Move>();
         private static GameMap _gameMap;
-        private static Dictionary<Planet, int> _shipsHeadingTowardsPlanet =
-            new Dictionary<Planet, int>();
+        private static bool _allPlanetsAreOwned;
+        private static Dictionary<int, Mission> _missions =
+            new Dictionary<int, Mission>();
+        private static Player _player;
 
         public static void Main(string[] args)
         {
@@ -20,62 +23,158 @@ namespace Halite2
             for (;;)
             {
                 _moveList.Clear();
-                _shipsHeadingTowardsPlanet.Clear();
                 _gameMap.UpdateMap(Networking.ReadLineIntoMetadata());
+                _allPlanetsAreOwned = _gameMap.Planets.Values.All(p => p.IsOwned());
+                _player = _gameMap.GetMyPlayer();
 
-                foreach (var ship in _gameMap.GetMyPlayer().Ships.Values)
+                var ships = _player.Ships.Values;
+                var currentMissions = ships.Where(s => _missions.ContainsKey(s.Id)).ToList();
+                var obsoleteMissions = _missions.Keys.Where(k => !_player.Ships.Keys.Contains(k)).ToList();
+                foreach (var k in obsoleteMissions)
+                    _missions.Remove(k);
+
+                foreach (var ship in currentMissions)
                 {
-                    if (ship.DockingStatus != DockingStatus.Undocked)
+                    try
                     {
-                        continue;
+                        UpdateMission(ship);
                     }
-
-                    var allIsOwned = _gameMap.Planets.All(p => p.Value.IsOwned());
-                    var closestAvailablePlanet = _gameMap.Planets.Values
-                        .Where(p => !p.IsOwned() || p.HasRoom(_gameMap.PlayerId))
-                        .Where(p => ShouldDispatchMoreShips(p))
-                        .OrderBy(p => p.DistanceTo(ship))
-                        .FirstOrDefault();
-                    var closestEnemy = _gameMap.Ships
-                        .Where(s => s.Owner != _gameMap.PlayerId)
-                        .OrderBy(e => e.DistanceTo(ship))
-                        .FirstOrDefault();
-
-                    if (allIsOwned)
+                    catch (Exception e)
                     {
-                        if (closestEnemy != null)
-                        {
-                            var newThrustMove = Navigation.NavigateShipToDock(
-                                _gameMap, ship, closestEnemy, Constants.MAX_SPEED);
-                            if (newThrustMove != null)
-                            {
-                                _moveList.Add(newThrustMove);
-                            }
-                        }
-                    }
-                    else if (ship.CanDock(closestAvailablePlanet))
-                    {
-                        _moveList.Add(new DockMove(ship, closestAvailablePlanet));
-                    }
-                    else
-                    {
-                        var newThrustMove = Navigation.NavigateShipToDock(
-                            _gameMap, ship, closestAvailablePlanet, 7);
-                        if (newThrustMove != null)
-                        {
-                            _moveList.Add(newThrustMove);
-                        }
+                        DebugLog.AddLog($"UpdateMission: {e.Message}");
                     }
                 }
+
+                foreach (var ship in ships.Except(currentMissions))
+                {
+                    try
+                    {
+                        AssignMission(ship);
+                    }
+                    catch (Exception e)
+                    {
+                        DebugLog.AddLog($"AssignMission: {e.Message}");
+                    }
+                }
+
                 Networking.SendMoves(_moveList);
             }
         }
 
-        private static bool ShouldDispatchMoreShips(Planet p)
+        private static void AssignMission(Ship ship)
         {
-            var numShips = 0;
-            return (_shipsHeadingTowardsPlanet.TryGetValue(p, out numShips) && numShips < p.NumAvailableSpots())
-                || numShips == 0;
+            if (_allPlanetsAreOwned)
+            {
+                var closestEnemy = ship.ClosestEnemy(_gameMap);
+                if (closestEnemy != null)
+                {
+                    _missions[ship.Id] = new Mission
+                    {
+                        Type = Mission.MissionType.Attack,
+                        TargetId = closestEnemy.Id
+                    };
+                    var newThrustMove = Navigation.NavigateShipToDock(
+                        _gameMap, ship, closestEnemy, Constants.MAX_SPEED);
+                    if (newThrustMove != null)
+                    {
+                        _moveList.Add(newThrustMove);
+                    }
+                }
+            }
+            else
+            {
+                var bestPlanet = _gameMap.Planets.Values
+                    .Where(p => !p.IsOwned() || (p.Owner == _gameMap.PlayerId && !p.IsFull()))
+                    .OrderByDescending(p => p.NumAvailableSpots()/p.DistanceTo(ship))
+                    .First();
+                if (ship.CanDock(bestPlanet))
+                {
+                    _missions[ship.Id] = new Mission
+                    {
+                        Type = Mission.MissionType.StayDocked,
+                        TargetId = bestPlanet.Id
+                    };
+                    _moveList.Add(new DockMove(ship, bestPlanet));
+                }
+                else
+                {
+                    _missions[ship.Id] = new Mission
+                    {
+                        Type = Mission.MissionType.TakePlanet,
+                        TargetId = bestPlanet.Id
+                    };
+                    var newThrustMove = Navigation.NavigateShipToDock(
+                        _gameMap, ship, bestPlanet, 7);
+                    if (newThrustMove != null)
+                    {
+                        _moveList.Add(newThrustMove);
+                    }
+                }
+            }
+        }
+
+        private static void UpdateMission(Ship ship)
+        {
+            var targetPlanet = _gameMap.Planets.Values.Where(p => p.Id == _missions[ship.Id].TargetId).FirstOrDefault();
+            var targetShip = _gameMap.Ships.Where(s => s.Id == _missions[ship.Id].TargetId).FirstOrDefault();
+            switch (_missions[ship.Id].Type)
+            {
+                case Mission.MissionType.TakePlanet:
+                case Mission.MissionType.FillPlanet:
+                if (targetPlanet == null)
+                {
+                    AssignMission(ship);
+                    return;
+                }
+
+                if (ship.CanDock(targetPlanet))
+                {
+                    _missions[ship.Id] = new Mission
+                    {
+                        Type = Mission.MissionType.StayDocked,
+                        TargetId = targetPlanet.Id
+                    };
+                    _moveList.Add(new DockMove(ship, targetPlanet));
+                }
+                else if (!targetPlanet.IsOwned() || targetPlanet.HasRoom(_gameMap.PlayerId))
+                {
+                    var newThrustMove = Navigation.NavigateShipToDock(
+                        _gameMap, ship, targetPlanet, 7);
+                    if (newThrustMove != null)
+                    {
+                        _moveList.Add(newThrustMove);
+                    }
+                }
+                else
+                {
+                    AssignMission(ship);
+                }
+                break;
+
+                case Mission.MissionType.Attack:
+                if (targetShip != null)
+                {
+                    var newThrustMove = Navigation.NavigateShipToDock(
+                        _gameMap, ship, targetShip, Constants.MAX_SPEED);
+                    if (newThrustMove != null)
+                    {
+                        _moveList.Add(newThrustMove);
+                    }
+                }
+                else
+                {
+                    AssignMission(ship);
+                }
+                break;
+
+                case Mission.MissionType.Suicide:
+                break;
+
+                case Mission.MissionType.StayDocked:
+                if (targetPlanet == null || targetPlanet.Owner != _gameMap.PlayerId)
+                    AssignMission(ship);
+                break;
+            }
         }
     }
 }

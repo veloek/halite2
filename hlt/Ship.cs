@@ -11,7 +11,6 @@ namespace Halite2.hlt
         private int _dockingProgress;
         private int _weaponCooldown;
 
-        public Mission Mission { get; set; }
         public DockingStatus DockingStatus => _dockingStatus;
         public int DockedPlanet => _dockedPlanet;
         public int DockingProgress => _dockingProgress;
